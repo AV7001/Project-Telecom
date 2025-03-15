@@ -25,6 +25,7 @@ interface Site {
 export function SiteMap() {
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
+  const [center, setCenter] = useState<[number, number]>([27.7172, 85.3240]); // Default center (Kathmandu, Nepal)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export function SiteMap() {
         .select('id, name, location, latitude, longitude');
 
       if (error) throw error;
-      
+
       // Filter out sites without coordinates
       const sitesWithCoordinates = (data || []).filter(
         site => site.latitude && site.longitude
@@ -52,8 +53,10 @@ export function SiteMap() {
     }
   }
 
-  // Default center position (can be adjusted)
-  const defaultCenter: [number, number] = [27.7172, 85.3240]; // Kathmandu, Nepal as default
+  // Handle marker click to update center of the map
+  const handleMarkerClick = (latitude: number, longitude: number) => {
+    setCenter([latitude, longitude]);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -81,11 +84,7 @@ export function SiteMap() {
           ) : (
             <div className="h-[600px] w-full rounded-lg overflow-hidden border border-gray-200">
               <MapContainer 
-                center={
-                  sites.length > 0 && sites[0].latitude && sites[0].longitude
-                    ? [sites[0].latitude, sites[0].longitude]
-                    : defaultCenter
-                } 
+                center={center} 
                 zoom={10} 
                 style={{ height: '100%', width: '100%' }}
               >
@@ -97,6 +96,9 @@ export function SiteMap() {
                   <Marker 
                     key={site.id} 
                     position={[site.latitude, site.longitude]}
+                    eventHandlers={{
+                      click: () => handleMarkerClick(site.latitude, site.longitude),
+                    }}
                   >
                     <Popup>
                       <div>
