@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { v4 as uuidv4 } from 'uuid';
+// import { sendNotificationToAdmins } from '../lib/notifications';
+//import { sendNotificationToAdmins } from '../lib/notifications';
 
 interface SiteFormProps {
   onClose: () => void;
@@ -40,11 +42,10 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
   }, [siteId]);
 
   function generateSiteId() {
-    const uuid = crypto.randomUUID(); 
+    const uuid = uuidv4(); 
     setFormData(prev => ({ ...prev, id: uuid }));
   }
   
-
   async function loadSiteData() {
     try {
       const { data, error } = await supabase
@@ -59,6 +60,8 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
           ...data,
           latitude: data.latitude?.toString() || '',
           longitude: data.longitude?.toString() || '',
+          power_details: data.power_details || '',
+          transmission_details: data.transmission_details || '',
           landlord_details: data.landlord_details || {
             name: '',
             contact: '',
@@ -107,6 +110,12 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
         message: `Site ${formData.name} has been ${siteId ? 'updated' : 'created'}`,
         type: siteId ? 'site_update' : 'site_create'
       }]);
+
+      // Send push notification to admins
+      await sendNotificationToAdmins(
+        siteId ? 'Site Updated' : 'New Site Created',
+        `Site ${formData.name} has been ${siteId ? 'updated' : 'created'}`
+      );
 
       toast.success(siteId ? 'Site updated successfully!' : 'Site created successfully!');
       onSuccess();
@@ -169,7 +178,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
               <input
                 type="number"
                 step="any"
-                value={formData.latitude}
+                value={formData.latitude || ''}
                 onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. 27.7172"
@@ -183,7 +192,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
               <input
                 type="number"
                 step="any"
-                value={formData.longitude}
+                value={formData.longitude || ''}
                 onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. 85.3240"
@@ -195,7 +204,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                 Power Details
               </label>
               <textarea
-                value={formData.power_details}
+                value={formData.power_details || ''}
                 onChange={(e) => setFormData({ ...formData, power_details: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={3}
@@ -207,7 +216,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                 Transmission Details
               </label>
               <textarea
-                value={formData.transmission_details}
+                value={formData.transmission_details || ''}
                 onChange={(e) => setFormData({ ...formData, transmission_details: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={3}
@@ -223,7 +232,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                   </label>
                   <input
                     type="text"
-                    value={formData.landlord_details.name}
+                    value={formData.landlord_details.name || ''}
                     onChange={(e) => setFormData({
                       ...formData,
                       landlord_details: {
@@ -240,7 +249,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                   </label>
                   <input
                     type="text"
-                    value={formData.landlord_details.contact}
+                    value={formData.landlord_details.contact || ''}
                     onChange={(e) => setFormData({
                       ...formData,
                       landlord_details: {
@@ -257,7 +266,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                   </label>
                   <input
                     type="date"
-                    value={formData.landlord_details.agreement_date}
+                    value={formData.landlord_details.agreement_date || ''}
                     onChange={(e) => setFormData({
                       ...formData,
                       landlord_details: {
@@ -280,7 +289,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                   </label>
                   <input
                     type="text"
-                    value={formData.nea_details.approval_number}
+                    value={formData.nea_details.approval_number || ''}
                     onChange={(e) => setFormData({
                       ...formData,
                       nea_details: {
@@ -297,7 +306,7 @@ export function SiteForm({ onClose, onSuccess, siteId }: SiteFormProps) {
                   </label>
                   <input
                     type="date"
-                    value={formData.nea_details.approval_date}
+                    value={formData.nea_details.approval_date || ''}
                     onChange={(e) => setFormData({
                       ...formData,
                       nea_details: {

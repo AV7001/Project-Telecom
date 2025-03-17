@@ -44,7 +44,10 @@ export function UserDashboard() {
 
   async function loadSites() {
     try {
-      const { data, error } = await supabase.from('sites').select('*');
+      const { data, error } = await supabase
+        .from('sites')
+        .select('*')
+        .order('created_at', { ascending: true });
       if (error) throw error;
       setSites(data || []);
     } catch (error) {
@@ -110,7 +113,7 @@ export function UserDashboard() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Latitude</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Longitude</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transmission</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiber Route</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
@@ -121,7 +124,7 @@ export function UserDashboard() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{site.latitude}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{site.longitude}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{site.transmission_details}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{site.fiber_routes}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{site.location}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <button onClick={() => handleEdit(site)} className="text-blue-600 hover:text-blue-900">
                       <Edit className="w-5 h-5" />
@@ -183,16 +186,6 @@ export function UserDashboard() {
                   type="text"
                   value={editingSite?.transmission_details || ''}
                   onChange={(e) => setEditingSite({ ...editingSite, transmission_details: e.target.value })}
-                  className="border rounded p-2 w-full"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Fiber Routes</label>
-                <input
-                  type="text"
-                  value={editingSite?.fiber_routes || ''}
-                  onChange={(e) => setEditingSite({ ...editingSite, fiber_routes: e.target.value })}
                   className="border rounded p-2 w-full"
                 />
               </div>

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { PlusCircle, Users, MapPin, Router, Filter as Fiber, Image as ImageIcon, Network, Map, LogOut } from 'lucide-react';
+import { PlusCircle, Users, MapPin, Router, Filter as Fiber, Image as ImageIcon, Network, Map, LogOut, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteForm } from './SiteForm';
 import { NetworkDeviceForm } from './NetworkDeviceForm';
 import { FiberRouteForm } from './FiberRouteForm';
 import { UserManagementForm } from './UserManagementForm';
 import { useAuthStore } from '../store/authStore';
+import Notification from './Notification';
 
 interface Site {
   id: string;
@@ -51,6 +52,7 @@ export function AdminDashboard() {
   const [routes, setRoutes] = useState<FiberRoute[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notificationMessage, setNotificationMessage] = useState('');
   const [showSiteForm, setShowSiteForm] = useState(false);
   const [showNetworkForm, setShowNetworkForm] = useState(false);
   const [showFiberForm, setShowFiberForm] = useState(false);
@@ -99,6 +101,7 @@ export function AdminDashboard() {
 
       if (error) throw error;
       await loadData();
+      setNotificationMessage('Site deleted successfully!');
     } catch (error) {
       console.error('Error deleting site:', error);
     }
@@ -115,6 +118,7 @@ export function AdminDashboard() {
 
       if (error) throw error;
       await loadData();
+      setNotificationMessage('User deleted successfully!');
     } catch (error) {
       console.error('Error deleting user:', error);
     }
@@ -149,6 +153,9 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {notificationMessage && (
+          <Notification message={notificationMessage} onClose={() => setNotificationMessage('')} />
+        )}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           <div className="flex space-x-4">
@@ -246,6 +253,12 @@ export function AdminDashboard() {
                       <p className="text-sm text-gray-500">{site.location}</p>
                     </div>
                     <div className="flex space-x-2">
+                      <button
+                        onClick={() => navigate(`/admin/sites/${site.id}`)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
                       <button
                         onClick={() => {
                           setSelectedSite(site.id);

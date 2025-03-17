@@ -6,6 +6,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { UserDashboard } from './components/UserDashboard';
 import { SiteImages } from './components/SiteImages';
 import { SiteMap } from './components/SiteMap';
+import SiteDetails from './components/SiteDetails';
 import { useAuthStore } from './store/authStore';
 
 function ProtectedRoute({ 
@@ -75,6 +76,14 @@ function App() {
           element={
             <ProtectedRoute>
               <SiteMap />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/sites/:siteId"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <SiteDetails />
             </ProtectedRoute>
           }
         />

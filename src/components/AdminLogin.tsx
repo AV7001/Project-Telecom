@@ -7,16 +7,22 @@ export function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
   const signIn = useAuthStore(state => state.signIn);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true); // Set loading to true when submitting
+    setError(''); // Clear previous error
+
     try {
       await signIn(email, password);
       navigate('/admin');
-    } catch (error) {
-      setError('Invalid credentials');
+    } catch (error: any) {
+      setError(error?.message || 'Invalid credentials'); // Display specific error message
+    } finally {
+      setLoading(false); // Reset loading state after attempt
     }
   }
 
@@ -46,6 +52,7 @@ export function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
+                disabled={loading} // Disable input while loading
               />
             </div>
             <div className="mb-6">
@@ -58,13 +65,15 @@ export function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
+                disabled={loading} // Disable input while loading
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className={`w-full py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+              disabled={loading} // Disable button while loading
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
           <div className="mt-6 text-center">
